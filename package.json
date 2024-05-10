@@ -1,0 +1,25 @@
+{
+  "name": "commonbase-prototype",
+  "version": "1.0.0",
+  "description": "- a postgres db that saves things as embeddings - middleware scripts for upstreams",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "ts-node src/index.ts",
+    "studio": "prisma studio"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.12.11",
+    "prisma": "^5.13.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.13.0",
+    "dotenv": "^16.4.5",
+    "openai": "^4.44.0"
+  }
+}

@@ -1,0 +1,4 @@
+- a postgres db that saves things as embeddings
+- middleware scripts for upstreams
+- a server
+- a ui
