@@ -11,39 +11,15 @@ if (!process.env.DATABASE_URL) {
 
 const prisma = new PrismaClient();
 
-async function testmain() {
-  const embedding = await generateEmbedding("Hello, world!");
-  const meta = { author: "John Doe", title: "Hello, world, the novel!" };
-  const record = await prisma.schema.create({
-    data: {
-      data: "Hello, world!",
-      metadata: meta,
-      embeddingString: embedding.embedding.map((e) => e.toString()).join(","), // convert to string
-    },
-  });
-
-  // Add the embedding
-  await prisma.$executeRaw`
-    UPDATE schema
-    SET embedding = ${embedding.embedding}::vector
-    WHERE id = ${record.id}`;
-
-  // const allData = await prisma.schema.findMany()
-  // console.dir(allData, { depth: null })
-
-  const allData =
-    await prisma.$queryRaw`SELECT id, data, metadata, embedding::text FROM schema`;
-  console.dir(allData, { depth: null });
-}
-
 const addRecord = async (data: string, metadata: any, embedMeta: boolean = false) => {
   console.log("Adding record:", data);
   // if embedMeta is true, we will embed the metadata as well
+  let embedData = data;
   if (embedMeta) {
     // merge the metadata with the data
-    data = JSON.stringify({ data, metadata });
+    embedData = JSON.stringify({ data, metadata });
   }
-  const embedding = await generateEmbedding(data);
+  const embedding = await generateEmbedding(embedData);
   const record = await prisma.schema.create({
     data: {
       data: data,
@@ -63,13 +39,7 @@ const addRecord = async (data: string, metadata: any, embedMeta: boolean = false
 async function queryRecord(query: string, limit: number = 3) {
   console.log("Querying for:", query);
   const embedding = await generateEmbedding(query);
-  // const results = await prisma.$queryRaw`
-  //   SELECT id, data, metadata
-  //   FROM schema
-  //   ORDER BY embedding <=> ${embedding.embedding}::vector
-  //   LIMIT ${limit}`;
 
-  // SELECT 1 - (embedding <=> '[3,1,2]') AS cosine_similarity FROM items;
   const results = await prisma.$queryRaw`
     SELECT id, data, metadata, 1 - (embedding <=> ${embedding.embedding}::vector) AS cosine_similarity
     FROM schema
@@ -98,7 +68,7 @@ async function main(query: string = "") {
   await shutdown(null);
 }
 
-// main(`artificial intelligence`)
+// main(`personal library science`)
 
 
 export { addRecord, queryRecord, shutdown };
