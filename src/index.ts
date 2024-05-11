@@ -98,22 +98,7 @@ async function main(query: string = "") {
   await shutdown(null);
 }
 
-
-main(`streaming`)
+// main(`artificial intelligence`)
 
 
 export { addRecord, queryRecord, shutdown };
-
-// addRecord("making my way downtown", { author: "Vanessa Carlton", title: "A Thousand Miles" }, true);
-// addRecord("I'm blue da ba dee da ba daa", { author: "Eiffel 65", title: "Blue" }, true);
-// addRecord("wake up! grab a brush and put a little makeup", { author: "System of a Down", title: "Chop Suey!" }, true);
-
-// testmain()
-//   .then(async () => {
-//     await prisma.$disconnect();
-//   })
-//   .catch(async (e) => {
-//     console.error(e);
-//     await prisma.$disconnect();
-//     process.exit(1);
-//   });

@@ -5,13 +5,14 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node src/index.ts",
+    "start": "ts-node src/server.ts",
     "studio": "prisma studio"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/express": "^4.17.21",
     "@types/node": "^20.12.11",
     "prisma": "^5.13.0",
     "ts-node": "^10.9.2",
@@ -20,6 +21,7 @@
   "dependencies": {
     "@prisma/client": "^5.13.0",
     "dotenv": "^16.4.5",
+    "express": "^4.19.2",
     "openai": "^4.44.0"
   }
 }
