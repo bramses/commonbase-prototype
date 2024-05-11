@@ -33,6 +33,13 @@ app.post("/query", async (req, res) => {
   }
 });
 
+
+// TODO
+// list tables
+// create table
+// switch table
+// read and write access to table
+
 app.listen(3550, () => {
   console.log("Server is running on http://localhost:3550");
 });
