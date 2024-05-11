@@ -1,3 +1,5 @@
+**[check out sister repo -- commonbase editor prototype!!](https://github.com/bramses/commonbase-editor-prototype-quill/tree/main)**
+
 - a postgres db that saves things as embeddings
 - middleware scripts for upstreams
 - a server
