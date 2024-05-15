@@ -1,4 +1,4 @@
-**[check out sister repo -- commonbase editor prototype!!](https://github.com/bramses/commonbase-editor-prototype-quill/tree/main)**
+**[check out sister repo -- commonbase editor prototype!!](https://github.com/bramses/commonbase-editor-prototype-quill)**
 
 **[or check out the current production version that uses highlights from kindle -- quoordinates!](https://github.com/bramses/quoordinates)**
 
