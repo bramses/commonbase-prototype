@@ -13,8 +13,9 @@ app.post("/record", async (req, res) => {
   const data = req.body.data;
   const metadata = req.body.metadata;
   const embedMeta = req.body.embedMeta;
+  const table = req.body.table;
   try {
-    const result = await addRecord(data, metadata, embedMeta);
+    const result = await addRecord(data, metadata, embedMeta, table);
     res.send(result);
   } catch (e: any) {
     res.status(500).send(e.message);
@@ -25,8 +26,9 @@ app.post("/record", async (req, res) => {
 app.post("/query", async (req, res) => {
   const query = req.body.query;
   const limit = req.body.limit;
+  const table = req.body.table;
   try {
-    const result = await queryRecord(query, limit);
+    const result = await queryRecord(query, limit, table);
     res.send(result);
   } catch (e: any) {
     res.status(500).send(e.message);

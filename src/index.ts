@@ -14,7 +14,8 @@ const prisma = new PrismaClient();
 const addRecord = async (
   data: string,
   metadata: any,
-  embedMeta: boolean = false
+  embedMeta: boolean = false,
+  table: string = "schema"
 ) => {
   console.log("Adding record:", data);
   // if embedMeta is true, we will embed the metadata as well
@@ -33,29 +34,29 @@ const addRecord = async (
   });
 
   await prisma.$executeRaw`
-    UPDATE schema
+    UPDATE ${Prisma.raw(table)}
     SET embedding = ${embedding.embedding}::vector
     WHERE id = ${record.id}`;
 
   return record;
 };
 
-async function queryRecord(query: string, limit: number = 3) {
+async function queryRecord(query: string, limit: number = 3, table: string = "schema") {
   console.log("Querying for:", query);
   const embedding = await generateEmbedding(query);
 
   const results = await prisma.$queryRaw`
     SELECT id, data, metadata, 1 - (embedding <=> ${embedding.embedding}::vector) AS cosine_similarity
-    FROM schema
+    FROM ${Prisma.raw(table)}
     ORDER BY cosine_similarity DESC
     LIMIT ${limit}`;
 
   return results;
 }
 
-async function listTables() {
+async function listTables(table_name: string = "schema") {
   const tables = await prisma.$queryRaw`
-    SELECT table_name
+    SELECT ${Prisma.raw("table_name")}
     FROM information_schema.tables
     WHERE table_schema = 'public'`;
 
@@ -88,7 +89,26 @@ async function describeTable(tableName: string, logData: boolean = false) {
   }
 }
 
-describeTable("schema");
+// describeTable("schema");
+
+// create a table set to schema in schema.prisma
+async function cloneTable(tableName: string) {
+  // check if table exists
+  const tables: any = await prisma.$queryRaw`
+    SELECT ${Prisma.raw("table_name")}
+    FROM information_schema.tables
+    WHERE table_schema = 'public'`;
+
+  if (tables.find((t: any) => t.table_name === tableName)) {
+    console.log("Table already exists");
+    return;
+  }
+
+  await prisma.$executeRaw`
+    CREATE TABLE ${Prisma.raw(tableName)}
+    AS TABLE schema
+  `;
+}
 
 async function startup() {
   await prisma.$connect();
@@ -114,4 +134,4 @@ async function main(query: string = "") {
 
 // main(`personal library science`)
 
-export { addRecord, queryRecord, shutdown };
+export { addRecord, queryRecord, shutdown, cloneTable, listTables, describeTable };
