@@ -40,6 +40,15 @@ async function main() {
   for (const { data, metadata } of csvData) {
     await addRecord(data, metadata, true)
   }
+
+  // Store transformations
+  const noOfTransformations = parseInt(await rl.question('Enter number of transformations to support (integer): '))
+  const transformations: string[] = []
+  for (let i = 0; i < noOfTransformations; i++) {
+    const t = await rl.question(`Transformation ${i + 1}: `)
+    transformations.push(t)
+  }
+
   return
 }
 
