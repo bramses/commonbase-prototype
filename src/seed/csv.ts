@@ -1,3 +1,10 @@
+/*
+ * Import data contained in a csv file.
+ * To run the script, execute `npm run import`.
+ * It will ask for the path to the csv file, import it to the database and then
+ * request the user to enter any kind of transformations they want.
+ */
+
 import { createInterface } from 'readline/promises';
 import { stdin, stdout } from 'process';
 import { createReadStream } from 'fs';
@@ -49,6 +56,7 @@ async function main() {
     transformations.push(t)
   }
 
+  console.log(transformations)
   return
 }
 
