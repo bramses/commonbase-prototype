@@ -13,12 +13,12 @@ app.post("/record", async (req, res) => {
   const data = req.body.data;
   const metadata = req.body.metadata;
   const embedMeta = req.body.embedMeta;
-  const table = req.body.table;
+  const tableName = req.body.tableName;
   try {
-    const result = await addRecord(data, metadata, embedMeta, table);
+    const result = await addRecord(data, metadata, embedMeta, tableName);
     res.send(result);
   } catch (e: any) {
-    res.status(500).send(e.message);
+    res.status(500).json({ error: e.message });
   }
 });
 

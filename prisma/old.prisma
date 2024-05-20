@@ -25,13 +25,3 @@ model schema {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
-
-model schema_2 {
-  id              String   @id @default(cuid())
-  data            String
-  metadata        Json
-  embedding       Unsupported("vector(1536)")?
-  embeddingString String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-}

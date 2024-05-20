@@ -9,7 +9,7 @@ import { createInterface } from 'readline/promises';
 import { stdin, stdout } from 'process';
 import { createReadStream } from 'fs';
 import CsvReadableStream from 'csv-reader';
-import { addRecord } from '../../src/index';
+import { addRecord, listTables, cloneTable } from '../../src/index';
 
 interface CsvRow {
   data: string;
@@ -39,6 +39,16 @@ const readCSV = async (filepath: string): Promise<CsvRow[]> => {
 
 async function main() {
   const rl = createInterface({ input: stdin, output: stdout })
+
+  const tableName = await rl.question('Enter table name: ')
+  console.log(`Table name: ${tableName}`)
+
+  // Check if table exists
+  const tables = await listTables()
+  if (tables.includes(tableName)) {
+    console.log('Table already exists')
+    return
+  }
 
   // Add records
   const filepath = await rl.question('Enter path to CSV file: ')

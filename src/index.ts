@@ -11,11 +11,21 @@ if (!process.env.DATABASE_URL) {
 
 const prisma = new PrismaClient();
 
+// define the models
+const models: {
+  [key: string]: 
+  Prisma.schema_2Delegate 
+  | Prisma.schemaDelegate;
+} = {
+  schema: prisma.schema,
+  schema_2: prisma.schema_2,
+};
+
 const addRecord = async (
   data: string,
   metadata: any,
   embedMeta: boolean = false,
-  table: string = "schema"
+  tableName: string = "schema"
 ) => {
   console.log("Adding record:", data);
   // if embedMeta is true, we will embed the metadata as well
@@ -25,7 +35,13 @@ const addRecord = async (
     embedData = JSON.stringify({ data, metadata });
   }
   const embedding = await generateEmbedding(embedData);
-  const record = await prisma.schema.create({
+
+  const model = models[tableName];
+  if (!model) {
+    throw new Error(`Table ${tableName} does not exist`);
+  }
+
+  const record = await model.create({
     data: {
       data: data,
       metadata: metadata,
@@ -34,19 +50,25 @@ const addRecord = async (
   });
 
   await prisma.$executeRaw`
-    UPDATE ${Prisma.raw(table)}
+    UPDATE ${Prisma.raw(tableName)}
     SET embedding = ${embedding.embedding}::vector
     WHERE id = ${record.id}`;
 
   return record;
 };
 
-async function queryRecord(query: string, limit: number = 3, table: string = "schema") {
+async function queryRecord(
+  query: string,
+  limit: number = 3,
+  table: string = "schema"
+) {
   console.log("Querying for:", query);
   const embedding = await generateEmbedding(query);
 
   const results = await prisma.$queryRaw`
-    SELECT id, data, metadata, 1 - (embedding <=> ${embedding.embedding}::vector) AS cosine_similarity
+    SELECT id, data, metadata, 1 - (embedding <=> ${
+      embedding.embedding
+    }::vector) AS cosine_similarity
     FROM ${Prisma.raw(table)}
     ORDER BY cosine_similarity DESC
     LIMIT ${limit}`;
@@ -54,14 +76,26 @@ async function queryRecord(query: string, limit: number = 3, table: string = "sc
   return results;
 }
 
-async function listTables(table_name: string = "schema") {
-  const tables = await prisma.$queryRaw`
+async function listTables() {
+  const tables: [{ k: string }] = await prisma.$queryRaw`
     SELECT ${Prisma.raw("table_name")}
     FROM information_schema.tables
     WHERE table_schema = 'public'`;
 
   console.log("Tables:");
-  console.dir(tables, { depth: null });
+  console.dir(tables.map((t: any) => t.table_name));
+  return tables.map((t: any) => t.table_name);
+}
+
+// listTables();
+
+async function useTable(tableName: string) {
+  const tables = await listTables();
+  if (!tables.includes(tableName)) {
+    console.log("Table does not exist");
+    return;
+  }
+  console.log("Switching to table:", tableName);
 }
 
 async function describeTable(tableName: string, logData: boolean = false) {
@@ -134,4 +168,11 @@ async function main(query: string = "") {
 
 // main(`personal library science`)
 
-export { addRecord, queryRecord, shutdown, cloneTable, listTables, describeTable };
+export {
+  addRecord,
+  queryRecord,
+  shutdown,
+  cloneTable,
+  listTables,
+  describeTable,
+};
