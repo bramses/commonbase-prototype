@@ -1,5 +1,6 @@
 import { PrismaClient, Prisma } from "@prisma/client";
 import { generateEmbedding } from "./embeddings";
+import { ModelsList } from "./models-interface";
 
 if (!process.env.OPENAI_API_KEY) {
   throw new Error("process.env.OPENAI_API_KEY is not defined. Please set it.");
@@ -12,14 +13,10 @@ if (!process.env.DATABASE_URL) {
 const prisma = new PrismaClient();
 
 // define the models
-const models: {
-  [key: string]: 
-  Prisma.schema_2Delegate 
-  | Prisma.schemaDelegate;
-} = {
+const models: ModelsList = {
   schema: prisma.schema,
   schema_2: prisma.schema_2,
-};
+}; // TODO figure out how to dynamically add models to this list without hardcoding or rewriting this file every time with seed/prisma-generator.ts
 
 const addRecord = async (
   data: string,
@@ -60,20 +57,39 @@ const addRecord = async (
 async function queryRecord(
   query: string,
   limit: number = 3,
+  filter: object = {},
   table: string = "schema"
 ) {
-  console.log("Querying for:", query);
-  const embedding = await generateEmbedding(query);
+  try {
+    console.log("Querying for:", query);
+    const embedding = await generateEmbedding(query);
 
-  const results = await prisma.$queryRaw`
-    SELECT id, data, metadata, 1 - (embedding <=> ${
-      embedding.embedding
-    }::vector) AS cosine_similarity
-    FROM ${Prisma.raw(table)}
-    ORDER BY cosine_similarity DESC
-    LIMIT ${limit}`;
+    // Construct WHERE clause from filter object
+    let whereClause = "WHERE 1 = 1";
+    for (const [key, value] of Object.entries(filter)) {
+      console.log("Key:", key, "Value:", value);
+      let formattedValue = typeof value === 'string' ? `'${value}'` : value;
+      whereClause += ` AND metadata->>'${key}' = ${formattedValue}`;
+    }
 
-  return results;
+    console.log("Where clause:", Prisma.raw(whereClause));
+
+    // WHERE metadata->>'filter' = 'yo'
+    const results = await prisma.$queryRaw`
+      SELECT id, data, metadata, 1 - (embedding <=> ${
+        embedding.embedding
+      }::vector) AS cosine_similarity
+      FROM ${Prisma.raw(table)}
+      ${Prisma.raw(whereClause)}
+      ORDER BY cosine_similarity DESC
+      LIMIT ${limit}`;
+
+    console.log("Results:");
+    console.dir(results, { depth: null });
+    return results;
+  } catch (err: any) {
+    return { error: err.message };
+  }
 }
 
 async function listTables() {
