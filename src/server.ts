@@ -1,5 +1,5 @@
 import express from "express";
-import { addRecord, queryRecord, shutdown } from ".";
+import { addRecord, queryRecord, shutdown, randomRecords } from ".";
 
 const app = express();
 app.use(express.json());
@@ -19,6 +19,17 @@ app.post("/record", async (req, res) => {
     res.status(200).send(result);
   } catch (e: any) {
     res.status(500).json({ error: e.message });
+  }
+});
+
+app.post("/random", async (req, res) => {
+  const n = req.body.n;
+  const table = req.body.table;
+  try {
+    const result = await randomRecords(n, table);
+    res.send(result);
+  } catch (e: any) {
+    res.status(500).send(e.message);
   }
 });
 

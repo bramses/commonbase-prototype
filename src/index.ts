@@ -54,6 +54,19 @@ const addRecord = async (
   return record;
 };
 
+async function randomRecords(n: number = 3, tableName: string = "schema") {
+  const records = await prisma.$queryRaw`
+    SELECT id, data, metadata
+    FROM ${Prisma.raw(tableName)}
+    ORDER BY random()
+    LIMIT ${n}`;
+
+  console.log("Random records:");
+  console.dir(records, { depth: null });
+
+  return records;
+}
+
 async function queryRecord(
   query: string,
   limit: number = 3,
@@ -191,4 +204,5 @@ export {
   cloneTable,
   listTables,
   describeTable,
+  randomRecords,
 };
