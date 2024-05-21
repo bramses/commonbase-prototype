@@ -38,10 +38,10 @@ app.post("/query", async (req, res) => {
   const query = req.body.query;
   const limit = req.body.limit;
   const table = req.body.table;
-  const filter = {"class": "1999"}
+  console.log(req.body);
+  const filter = JSON.parse(req.body.filter);
   try {
     const result = await queryRecord(query, limit, filter, table);
-    console.log(result);
     res.send(result);
   } catch (e: any) {
     res.status(500).send(e.message);

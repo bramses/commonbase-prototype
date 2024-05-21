@@ -16,3 +16,12 @@
 - [ ] api endpoint to insert doc
 - [ ] api endpoint to search with top k cosine sim
 - [ ] how to use in alfred
+
+
+# setup and running
+
+you'll need:
+- postgres (brew install postgres)
+- nodejs (brew install node)
+- editor server running (port 3000)
+- database server running (port 3550)

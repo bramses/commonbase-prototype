@@ -84,9 +84,6 @@ async function queryRecord(
       let formattedValue = typeof value === 'string' ? `'${value}'` : value;
       whereClause += ` AND metadata->>'${key}' = ${formattedValue}`;
     }
-
-    console.log("Where clause:", Prisma.raw(whereClause));
-
     // WHERE metadata->>'filter' = 'yo'
     const results = await prisma.$queryRaw`
       SELECT id, data, metadata, 1 - (embedding <=> ${
@@ -101,6 +98,7 @@ async function queryRecord(
     console.dir(results, { depth: null });
     return results;
   } catch (err: any) {
+    console.error(err);
     return { error: err.message };
   }
 }
