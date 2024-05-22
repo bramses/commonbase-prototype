@@ -1,11 +1,77 @@
 import express from "express";
 import { addRecord, queryRecord, shutdown, randomRecords } from ".";
+import CsvReadableStream from "csv-reader";
+import { createReadStream } from "fs";
+import multer from "multer";
+
+interface CsvRow {
+  data: string;
+  metadata: any;
+}
+
+const upload = multer({ dest: "uploads/" }); // specify the folder to save uploaded files
 
 const app = express();
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.send("Hello World!");
+  res.send(`
+  <form action="http://localhost:3550/upload" method="post" enctype="multipart/form-data">
+  <input type="text" name="tableName" placeholder="Table Name">
+  <input type="file" name="file" accept=".csv">
+  <button type="submit">Upload</button>`);
+});
+
+const readCSV = async (filepath: string): Promise<CsvRow[]> => {
+  let inputStream = createReadStream(filepath, "utf8");
+  const rows: CsvRow[] = [];
+
+  return new Promise((resolve) => {
+    inputStream
+      .pipe(
+        new CsvReadableStream({
+          trim: true,
+          skipEmptyLines: true,
+          skipHeader: true,
+        })
+      )
+      .on("data", function (row: any) {
+        console.log("A row arrived: ", row);
+        let metadata = {};
+        // split metadata each line by ; and each key value by :
+        if (row[1]) {
+          metadata = row[1].split(";").reduce((acc: any, item: string) => {
+            const [key, value] = item.split(":");
+            acc[key.trim()] = value.trim();
+            return acc;
+          }, {});
+        }
+        rows.push({
+          data: row[0],
+          metadata: metadata,
+        });
+      })
+      .on("end", () => resolve(rows));
+  });
+};
+
+// upload csv file
+app.post("/upload", upload.single("file"), async (req, res) => {
+  const tableName = req.body.tableName;
+  const file = req.file; // multer adds a 'file' object to the request
+  try {
+    if (!file) {
+      throw new Error("No file uploaded");
+    }
+    const csvData = await readCSV(file.path);
+
+    for (const { data, metadata } of csvData) {
+      await addRecord(data, metadata, false, tableName);
+    }
+    res.status(200).send({ message: "Upload successful" });
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // add record with json body { data, metadata, embedMeta }
@@ -47,7 +113,6 @@ app.post("/query", async (req, res) => {
     res.status(500).send(e.message);
   }
 });
-
 
 // TODO
 // list tables

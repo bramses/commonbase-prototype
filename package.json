@@ -7,13 +7,15 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "ts-node src/server.ts",
     "studio": "prisma studio",
-    "import": "ts-node src/seed/csv.ts"
+    "import": "ts-node src/seed/csv.ts",
+    "deploy-db-render-live": "npx prisma migrate deploy"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/express": "^4.17.21",
+    "@types/multer": "^1.4.11",
     "@types/node": "^20.12.11",
     "prisma": "^5.13.0",
     "ts-node": "^10.9.2",
@@ -24,6 +26,7 @@
     "csv-reader": "^1.0.12",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "multer": "^1.4.5-lts.1",
     "openai": "^4.44.0"
   }
 }
