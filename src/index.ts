@@ -51,6 +51,9 @@ const addRecord = async (
     SET embedding = ${embedding.embedding}::vector
     WHERE id = ${record.id}`;
 
+  console.log("Record added");
+  console.dir(record, { depth: null });
+
   return record;
 };
 

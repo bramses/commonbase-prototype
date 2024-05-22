@@ -15,8 +15,10 @@ const app = express();
 app.use(express.json());
 
 app.get("/", (req, res) => {
+  // get root url from env var or use default
+  const ROOT_URL = process.env.ROOT_URL || "http://localhost:3550";
   res.send(`
-  <form action="http://localhost:3550/upload" method="post" enctype="multipart/form-data">
+  <form action="${ROOT_URL}/upload" method="post" enctype="multipart/form-data">
   <input type="text" name="tableName" placeholder="Table Name">
   <input type="file" name="file" accept=".csv">
   <button type="submit">Upload</button>`);
@@ -66,7 +68,9 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     const csvData = await readCSV(file.path);
 
     for (const { data, metadata } of csvData) {
+      console.log("Adding record:", data);
       await addRecord(data, metadata, false, tableName);
+      console.log("Record added");
     }
     res.status(200).send({ message: "Upload successful" });
   } catch (e: any) {
