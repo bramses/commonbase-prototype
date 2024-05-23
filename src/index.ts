@@ -15,7 +15,7 @@ const prisma = new PrismaClient();
 // define the models
 const models: ModelsList = {
   schema: prisma.schema,
-  schema_2: prisma.schema_2,
+  // schema_2: prisma.schema_2,
 }; // TODO figure out how to dynamically add models to this list without hardcoding or rewriting this file every time with seed/prisma-generator.ts
 
 const addRecord = async (
