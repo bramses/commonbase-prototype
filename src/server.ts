@@ -69,7 +69,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
 
     for (const { data, metadata } of csvData) {
       console.log("Adding record:", data);
-      await addRecord(data, metadata, false, tableName);
+      const record = await addRecord(data, metadata, false, tableName);
       console.log("Record added");
     }
     res.status(200).send({ message: "Upload successful" });
@@ -86,7 +86,7 @@ app.post("/record", async (req, res) => {
   const tableName = req.body.tableName;
   try {
     const result = await addRecord(data, metadata, embedMeta, tableName);
-    res.status(200).send(result);
+    res.status(200).json({ result });
   } catch (e: any) {
     res.status(500).json({ error: e.message });
   }
