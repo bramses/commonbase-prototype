@@ -94,7 +94,8 @@ app.post("/record", async (req, res) => {
 
 app.post("/random", async (req, res) => {
   const n = req.body.n;
-  const table = req.body.table;
+  const table = req.body.tableName;
+  console.log(req.body);
   try {
     const result = await randomRecords(n, table);
     res.send(result);
